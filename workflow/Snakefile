@@ -1,0 +1,41 @@
+from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+HTTP = HTTPRemoteProvider()
+
+configfile: "workflow/config/config.yaml"
+
+
+rule processTreatmentResponse:
+    input:
+        GRMetrics = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRmetrics_v1.3.tsv",
+        GRValues = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
+    output:
+        TRPreprocessed = "procdata/TreatmentResponsePreprocessed.RDS",
+    conda:
+        "envs/r-base.yaml"
+    script: 
+        "scripts/processTreatmentResponse.R"
+
+rule preprocessMetadata:
+    input:
+        GRValues = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
+    output:
+        treatmentMetadata = "metadata/treatmentMetadata.tsv",
+        sampleMetadata = "metadata/sampleMetadata.tsv",
+    conda:
+        "envs/r-base.yaml"
+    script:
+        "scripts/preprocessMetadata.R"
+
+    
+rule downloadTreatmentResponseANDMetadata:
+    input: 
+        metadata = HTTP.remote(config["treatmentResponse_and_Metadata"]["TSV_files"])
+    output:
+        GRMetrics = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRmetrics_v1.3.tsv",
+        GRValues = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
+    shell: 
+        """
+        tar -xzf {input.metadata} -C rawdata/TreatmentResponse_and_Metadata;
+        find rawdata/TreatmentResponse_and_Metadata -name '*.tsv' -exec mv '{{}}' rawdata/TreatmentResponse_and_Metadata/ \;
+        """
+
