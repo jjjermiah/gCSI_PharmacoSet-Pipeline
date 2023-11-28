@@ -1,4 +1,0 @@
-treatmentResponse_and_Metadata:
-  RDS_files: http://research-pub.gene.com/gCSI_GRvalues2019/gCSI_GRdata_v1.3.rds.tar.gz
-  TSV_files: http://research-pub.gene.com/gCSI_GRvalues2019/gCSI_GRdata_v1.3.tsv.tar.gz
-

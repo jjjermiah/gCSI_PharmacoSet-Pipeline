@@ -4,3 +4,4 @@ metadata/*
 results/*
 .snakemake/*
 sandbox/
+logs/
