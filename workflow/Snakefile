@@ -1,7 +1,17 @@
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 HTTP = HTTPRemoteProvider()
 
-configfile: "workflow/config/config.yaml"
+configfile: "config/config.yaml"
+metadata = "metadata"
+
+rnaseq_files, = glob_wildcards("rawdata/rnaseq/{sample}.fastq.gz")
+samples = list(set([sample.split("_")[0] for sample in rnaseq_files]))[0]
+samples = ["586988"]
+
+include: "rules/expression.smk"
+include: "rules/downloadData.smk"
+
+
 
 
 rule processTreatmentResponse:
@@ -27,15 +37,3 @@ rule preprocessMetadata:
         "scripts/preprocessMetadata.R"
 
     
-rule downloadTreatmentResponseANDMetadata:
-    input: 
-        metadata = HTTP.remote(config["treatmentResponse_and_Metadata"]["TSV_files"])
-    output:
-        GRMetrics = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRmetrics_v1.3.tsv",
-        GRValues = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
-    shell: 
-        """
-        tar -xzf {input.metadata} -C rawdata/TreatmentResponse_and_Metadata;
-        find rawdata/TreatmentResponse_and_Metadata -name '*.tsv' -exec mv '{{}}' rawdata/TreatmentResponse_and_Metadata/ \;
-        """
-
