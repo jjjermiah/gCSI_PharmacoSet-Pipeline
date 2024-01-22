@@ -1,29 +1,31 @@
+import pandas as pd
+from os import path, listdir
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 HTTP = HTTPRemoteProvider()
 
-configfile: "config/config.yaml"
+configfile: "workflow/config/config.yaml"
 metadata = "metadata"
 
-rnaseq_files, = glob_wildcards("rawdata/rnaseq/{sample}.fastq.gz")
-samples = list(set([sample.split("_")[0] for sample in rnaseq_files]))[0]
-samples = ["586988"]
+# rnaseq_files, = glob_wildcards("rawdata/rnaseq/{sample}.fastq.gz")
+# samples = list(set([sample.split("_")[0] for sample in rnaseq_files]))[0]
+# samples = ["586988"]
 
-include: "rules/expression.smk"
-include: "rules/downloadData.smk"
+sample_df = pd.read_csv("metadata/rnaseq/sample_file.csv")
 
+fastq_dir = "rawdata/rnaseq/fastq"
 
-
-
-rule processTreatmentResponse:
-    input:
-        GRMetrics = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRmetrics_v1.3.tsv",
-        GRValues = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
-    output:
-        TRPreprocessed = "procdata/TreatmentResponsePreprocessed.RDS",
-    conda:
-        "envs/r-base.yaml"
-    script: 
-        "scripts/processTreatmentResponse.R"
+samples = []
+# iterate through each row of the sample_df
+for index, row in sample_df.iterrows():
+    # get the sample name
+    sample = row["file_name"]
+    # get the treatment
+    if str(sample).endswith("fastq.gz"):
+        file = path.join(fastq_dir, sample)
+        # check if the file exists
+        if path.exists(file):
+            samples.append(file)
+            # print(f"EXISTS: {sample}")
 
 rule preprocessMetadata:
     input:
@@ -31,9 +33,9 @@ rule preprocessMetadata:
     output:
         treatmentMetadata = "metadata/treatmentMetadata.tsv",
         sampleMetadata = "metadata/sampleMetadata.tsv",
-    conda:
-        "envs/r-base.yaml"
     script:
         "scripts/preprocessMetadata.R"
 
     
+include: "rules/rnaseq.smk"
+include: "rules/downloadData.smk"

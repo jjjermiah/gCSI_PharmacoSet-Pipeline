@@ -4,22 +4,33 @@ HTTP = HTTPRemoteProvider()
 
 rule downloadTreatmentResponseANDMetadata:
     input: 
-        metadata = HTTP.remote(config["treatmentResponse_and_Metadata"]["TSV_files"])
+        metadata_tsv = HTTP.remote(config["treatmentResponse_and_Metadata"]["TSV_files"]),
+        metadata_rds = HTTP.remote(config["treatmentResponse_and_Metadata"]["RDS_files"])
     output:
-        GRMetrics = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRmetrics_v1.3.tsv",
-        GRValues = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
+        metadata_tsv = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRdata_v1.3.tsv.tar.gz",
+        metadata_rds = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRdata_v1.3.rds.tar.gz"
     shell: 
         """
-        tar -xzf {input.metadata} -C rawdata/TreatmentResponse_and_Metadata;
-        find rawdata/TreatmentResponse_and_Metadata -name '*.tsv' -exec mv '{{}}' rawdata/TreatmentResponse_and_Metadata/;
+        mv {input.metadata_tsv} {output.metadata_tsv} && \
+        mv {input.metadata_rds} {output.metadata_rds}
         """
 
-rule downloadExpressionMetadata:
+
+rule processTreatmentResponse:
     input:
-        HTTP.remote(config["molecularProfiles"]["expression"]["metadata"]["url"])
+        metadata_tsv = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRdata_v1.3.tsv.tar.gz",
+        metadata_rds = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRdata_v1.3.rds.tar.gz"
     output:
-        join(metadata,"EGAD000010000725/EGAD000010000725_map.txt")
-    shell:
-        "wget -O {output} {input}"
+        TRPreprocessed = "procdata/TreatmentResponsePreprocessed.qs",
+    script:
+        "../scripts/treatmentResponse/processTreatmentResponse.R"
+
+# rule downloadExpressionMetadata:
+#     input:
+#         HTTP.remote(config["molecularProfiles"]["expression"]["metadata"]["url"])
+#     output:
+#         join(metadata,"EGAD000010000725/EGAD000010000725_map.txt")
+#     shell:
+#         "wget -O {output} {input}"
 
 

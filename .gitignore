@@ -2,6 +2,8 @@ rawdata/*
 procdata/*
 metadata/*
 results/*
+references/*
 .snakemake/*
 sandbox/
 logs/
+.RData
