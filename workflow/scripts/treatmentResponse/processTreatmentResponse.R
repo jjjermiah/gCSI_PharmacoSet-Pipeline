@@ -103,7 +103,7 @@ published_profiles <- unique(
     GEC50,
     GR50)])
 
-assay(gCSI_tre, "profiles_published") <- published_profiles
+CoreGx::assay(gCSI_tre, "profiles_published") <- published_profiles
 
 qs::qsave(gCSI_tre, file = OUTPUT[[1]])
 

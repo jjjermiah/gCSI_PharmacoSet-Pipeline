@@ -1,7 +1,7 @@
 refDir = "references"
 ref_build = ["GRCh38", "GRCh37"]
-ref_version = "44"
-kallisto_version = "0.46.1"
+ref_version = ["44", "45"]
+kallisto_version = ["0.46.1", "0.46.2", "0.48.0"]
 
 
 rule build_all_kallisto_indices:
@@ -30,9 +30,18 @@ rule kallisto_index:
     envmodules:
         lambda wildcards: f"kallisto/{wildcards.kallisto_version}"
     threads:
-        3
+        2
     shell:
-        "kallisto index -i {output.index} {input.ref} > {log} 2>&1"
+        """
+        # OPTIONS=""
+        # if [ "{wildcards.kallisto_version}" == "0.50.1" ]; then
+        #     OPTIONS="--threads {threads}"
+        # fi
+
+        kallisto index \
+            -i {output.index} \
+            {input.ref} # > {log} 2>&1
+        """
 
 rule kallisto_quant:
     input:
