@@ -1,4 +1,3 @@
-
 # THESE NEED TO BE DEFINED!
 # 1. samples
 # 2. config["ref_build"]
@@ -14,6 +13,7 @@ include: "kallisto.smk"
 include: "star.smk"
 include: "featureCounts.smk"
 include: "rsem.smk"
+
 
 # rule kallisto:
 #     input:
@@ -35,7 +35,6 @@ include: "rsem.smk"
 #             ref_version=config["ref_version"],
 #             featureCounts_VERSION=config["featureCounts_VERSION"]
 #             ),
-
 # rule calcRSEM:
 #     input:
 #         expand(
@@ -45,4 +44,3 @@ include: "rsem.smk"
 #             ref_version=config["ref_version"],
 #             RSEM_VERSION = config["rsem_version"],
 #         )
-        

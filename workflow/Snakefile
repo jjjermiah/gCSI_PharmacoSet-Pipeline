@@ -1,9 +1,13 @@
 import pandas as pd
 from os import path, listdir
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+
 HTTP = HTTPRemoteProvider()
 
+
 configfile: "workflow/config/config.yaml"
+
+
 metadata = "metadata"
 
 # rnaseq_files, = glob_wildcards("rawdata/rnaseq/{sample}.fastq.gz")
@@ -27,15 +31,16 @@ for index, row in sample_df.iterrows():
             samples.append(file)
             # print(f"EXISTS: {sample}")
 
+
 rule preprocessMetadata:
     input:
-        GRValues = "rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
+        GRValues="rawdata/TreatmentResponse_and_Metadata/gCSI_GRvalues_v1.3.tsv",
     output:
-        treatmentMetadata = "metadata/treatmentMetadata.tsv",
-        sampleMetadata = "metadata/sampleMetadata.tsv",
+        treatmentMetadata="metadata/treatmentMetadata.tsv",
+        sampleMetadata="metadata/sampleMetadata.tsv",
     script:
         "scripts/preprocessMetadata.R"
 
-    
+
 include: "rules/rnaseq.smk"
 include: "rules/downloadData.smk"
