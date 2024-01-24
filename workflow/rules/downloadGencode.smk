@@ -39,7 +39,7 @@ rule downloadAllGencode:
             dirPath="references",
             species="human",
             ref_build=["GRCh37", "GRCh38"],
-            gencode_ver=[str(i) for i in range(33, 45)],
+            gencode_ver=[str(i) for i in range(33, 46)],
         ),
 
 
